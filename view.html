@@ -1,0 +1,62 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Agora Signal & Meeting Demo</title>
+        <meta charset="utf-8">
+        <script src="js/AgoraSig-1.4.1.7.js"></script>
+        <script src="js/vendor/jquery.js"></script>
+        <style type="text/css">
+            canvas {
+                border: solid 3px #000;
+            }
+        </style>
+    </head>
+    <body>
+    <canvas id="canvas" width="700" height="500"></canvas>
+
+    <script language="javascript">
+        var appid  = '';
+        var channelName = 'signalDemo01';
+
+        var canvas = document.getElementById('canvas');
+        var ctx = canvas.getContext('2d');
+        var drawing = false;
+        var login = false;
+        var before_x = 0;
+        var before_y = 0;
+
+        //for signaling
+        var signal = Signal(appid);
+        var session, channel, call, g_uid;
+        var token = "_no_need_token";
+        session = signal.login("view",token);
+        session.dbg = true;
+            
+        session.onLoginSuccess = function(uid){
+            console.log('login success ' + uid);
+            login = true;
+            channel = session.channelJoin("wb");
+            channel.onMessageChannelReceive = function(account, uid, msg){
+                console.log(msg);
+                var xy = msg.split("-");
+                var x = xy[0];
+                var y = xy[1];
+                var before_x = xy[2];
+                var before_y = xy[3];
+
+                ctx.lineCap = 'round';
+                ctx.strokeStyle = 'black';
+                ctx.lineWidth = '10px';
+                ctx.beginPath();
+                ctx.moveTo(before_x, before_y);
+                ctx.lineTo(x, y);
+                ctx.stroke();
+                ctx.closePath();
+            }
+        };
+        session.onLoginFailed = function(ecode){
+            console.log('login failed ' + ecode);
+        };
+    </script>
+  </body>
+</html>
